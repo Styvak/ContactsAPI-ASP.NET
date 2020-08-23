@@ -33,5 +33,15 @@ namespace ContactsAPI.Services
         {
             return await _dataContext.Contacts.ToListAsync();
         }
+
+        public async Task<bool> DeleteContactByIdAsync(Guid contactId)
+        {
+            var contact = await GetContactByIdAsync(contactId);
+
+            if (contact == null) return false;
+            _dataContext.Contacts.Remove(contact);
+            var deleted = await _dataContext.SaveChangesAsync();
+            return deleted > 0;
+        }
     }
 }

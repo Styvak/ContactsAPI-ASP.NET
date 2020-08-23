@@ -36,7 +36,17 @@ namespace ContactsAPI.Controllers
             contact.ContactID = Guid.NewGuid();
 
             bool created = await _contactService.CreateContactAsync(contact);
-            return Ok(contact);
+
+            var locationUri = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}/api/contact/{contact.ContactID}";
+            return Created(locationUri, contact);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var deleted = await _contactService.DeleteContactByIdAsync(id);
+            if (deleted) return NoContent();
+            return NotFound();
         }
     }
 }
