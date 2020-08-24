@@ -33,5 +33,18 @@ namespace ContactsAPI.Controllers
 
             return Ok(authResponse);
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
+        {
+            var authResponse = await _identityService.LoginAsync(request.Email, request.Password);
+
+            if (!authResponse.Success)
+            {
+                return BadRequest(authResponse);
+            }
+
+            return Ok(authResponse);
+        }
     }
 }
