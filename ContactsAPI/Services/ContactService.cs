@@ -26,7 +26,7 @@ namespace ContactsAPI.Services
 
         public async Task<Contact> GetContactByIdAsync(Guid contactId)
         {
-            return await _dataContext.Contacts.FindAsync(contactId);
+            return await _dataContext.Contacts.Include(c => c.Skills).SingleOrDefaultAsync(c => c.ContactID == contactId);
         }
 
         public async Task<IEnumerable<Contact>> GetContactsAsync()
@@ -46,8 +46,6 @@ namespace ContactsAPI.Services
 
         public async Task<bool> UpdateContact(Contact contactToUpdate)
         {
-            /*var contact = await GetContactByIdAsync(contactToUpdate.ContactID);
-            if (contact == null) return false;*/
             _dataContext.Contacts.Update(contactToUpdate);
             var updated = await _dataContext.SaveChangesAsync();
             return updated > 0;

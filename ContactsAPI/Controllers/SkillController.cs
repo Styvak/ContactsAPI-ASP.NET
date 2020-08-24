@@ -55,8 +55,31 @@ namespace ContactsAPI.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             var deleted = await _skillService.DeleteSkillByIdAsync(id);
-            //TODO -> Remove skill from contact
             if (deleted) return NoContent();
+            return NotFound();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSkillRequest request)
+        {
+            var skill = await _skillService.GetSkillByIdAsync(id);
+            if (skill == null) return NotFound();
+            if (request.ContactID != null)
+            {
+                skill.ContactID = (Guid)request.ContactID;
+                skill.Contact = await _contactService.GetContactByIdAsync(skill.ContactID);
+                if (skill.Contact == null)
+                {
+                    ModelState.AddModelError("ContactID", $"Contact {skill.ContactID} not found.");
+                    return BadRequest(ModelState);
+                }
+            }
+            if (request.Name != null) skill.Name = request.Name;
+            if (request.Level != null) skill.Level = request.Level;
+
+            var updated = await _skillService.UpdateSkill(skill);
+            if (updated)
+                return Ok(skill);
             return NotFound();
         }
     }

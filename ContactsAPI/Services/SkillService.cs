@@ -20,7 +20,6 @@ namespace ContactsAPI.Services
         public async Task<bool> CreateSkillAsync(Skill skill)
         {
             await _dataContext.Skills.AddAsync(skill);
-            //TODO -> Add skill to contact
             var created = await _dataContext.SaveChangesAsync();
             return created > 0;
         }
@@ -31,7 +30,6 @@ namespace ContactsAPI.Services
 
             if (skill == null) return false;
             _dataContext.Skills.Remove(skill);
-            //TODO -> Remove skill in contact
             var deleted = await _dataContext.SaveChangesAsync();
             return deleted > 0;
         }
@@ -46,6 +44,16 @@ namespace ContactsAPI.Services
             return await _dataContext.Skills.ToListAsync();
         }
 
-        
+        public async Task<IEnumerable<Skill>> GetSkillsByContactIdAsync(Guid contactId)
+        {
+            return await _dataContext.Skills.Where(s => s.ContactID == contactId).ToListAsync();
+        }
+
+        public async Task<bool> UpdateSkill(Skill skillToUpdate)
+        {
+            _dataContext.Skills.Update(skillToUpdate);
+            var updated = await _dataContext.SaveChangesAsync();
+            return updated > 0;
+        }
     }
 }

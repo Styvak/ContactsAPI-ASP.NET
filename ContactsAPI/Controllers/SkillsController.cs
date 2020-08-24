@@ -20,9 +20,15 @@ namespace ContactsAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetContacts()
+        public async Task<IActionResult> GetSkills()
         {
             return Ok(await _skillService.GetSkillsAsync());
+        }
+
+        [HttpGet("contact/{contactId}")]
+        public async Task<IActionResult> GetSkillsByContact(Guid contactId)
+        {
+            return Ok(await _skillService.GetSkillsByContactIdAsync(contactId));
         }
     }
 }
