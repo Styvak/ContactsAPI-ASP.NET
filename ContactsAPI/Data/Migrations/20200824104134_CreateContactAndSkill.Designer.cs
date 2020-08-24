@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ContactsAPI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200823155951_CreateContact")]
-    partial class CreateContact
+    [Migration("20200824104134_CreateContactAndSkill")]
+    partial class CreateContactAndSkill
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -53,6 +53,30 @@ namespace ContactsAPI.Data.Migrations
                     b.HasKey("ContactID");
 
                     b.ToTable("Contacts");
+                });
+
+            modelBuilder.Entity("ContactsAPI.Models.Skill", b =>
+                {
+                    b.Property<Guid>("SkillID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ContactID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SkillID");
+
+                    b.HasIndex("ContactID");
+
+                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -253,6 +277,15 @@ namespace ContactsAPI.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("ContactsAPI.Models.Skill", b =>
+                {
+                    b.HasOne("ContactsAPI.Models.Contact", "Contact")
+                        .WithMany("Skills")
+                        .HasForeignKey("ContactID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

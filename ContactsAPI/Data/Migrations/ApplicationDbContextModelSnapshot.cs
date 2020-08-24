@@ -53,6 +53,30 @@ namespace ContactsAPI.Data.Migrations
                     b.ToTable("Contacts");
                 });
 
+            modelBuilder.Entity("ContactsAPI.Models.Skill", b =>
+                {
+                    b.Property<Guid>("SkillID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ContactID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SkillID");
+
+                    b.HasIndex("ContactID");
+
+                    b.ToTable("Skills");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -251,6 +275,15 @@ namespace ContactsAPI.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("ContactsAPI.Models.Skill", b =>
+                {
+                    b.HasOne("ContactsAPI.Models.Contact", "Contact")
+                        .WithMany("Skills")
+                        .HasForeignKey("ContactID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

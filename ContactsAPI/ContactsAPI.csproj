@@ -10,6 +10,22 @@
     <Compile Remove="Data\Migrations\20200823153424_CreateContact.Designer.cs" />
     <Compile Remove="Data\Migrations\20200823153636_CreateContact.cs" />
     <Compile Remove="Data\Migrations\20200823153636_CreateContact.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200823155951_CreateContact.cs" />
+    <Compile Remove="Data\Migrations\20200823155951_CreateContact.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200823170725_CreateSkill.cs" />
+    <Compile Remove="Data\Migrations\20200823170725_CreateSkill.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200824093734_UpdateSkill.cs" />
+    <Compile Remove="Data\Migrations\20200824093734_UpdateSkill.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200824093905_CreateContactAndSkill.cs" />
+    <Compile Remove="Data\Migrations\20200824093905_CreateContactAndSkill.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200824094304_CreateContactAndSkill.cs" />
+    <Compile Remove="Data\Migrations\20200824094304_CreateContactAndSkill.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200824094347_CreateContactAndSkill.cs" />
+    <Compile Remove="Data\Migrations\20200824094347_CreateContactAndSkill.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200824094408_CreateContactAndSkill.cs" />
+    <Compile Remove="Data\Migrations\20200824094408_CreateContactAndSkill.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200824103930_CreateContactAndSkill.cs" />
+    <Compile Remove="Data\Migrations\20200824103930_CreateContactAndSkill.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

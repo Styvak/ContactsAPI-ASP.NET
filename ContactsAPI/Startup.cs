@@ -35,6 +35,7 @@ namespace ContactsAPI
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddScoped<IContactService, ContactService>();
+            services.AddScoped<ISkillService, SkillService>();
             //services.AddRazorPages();
         }
 

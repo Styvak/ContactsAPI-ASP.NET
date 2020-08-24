@@ -12,5 +12,7 @@ namespace ContactsAPI.Services
         Task<Contact> GetContactByIdAsync(Guid contactId);
         Task<bool> CreateContactAsync(Contact contact);
         Task<bool> DeleteContactByIdAsync(Guid contactId);
+
+        Task<bool> UpdateContact(Contact contactToUpdate);
     }
 }

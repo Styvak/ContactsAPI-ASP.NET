@@ -48,5 +48,24 @@ namespace ContactsAPI.Controllers
             if (deleted) return NoContent();
             return NotFound();
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateContactRequest request)
+        {
+            var contact = await _contactService.GetContactByIdAsync(id);
+            if (contact == null) return NotFound();
+            if (request.Firstname != null) contact.Firstname = request.Firstname;
+            if (request.Lastname != null) contact.Lastname = request.Lastname;
+            if (request.Fullname != null) contact.Fullname = request.Fullname;
+            else if (request.Firstname != null || request.Lastname != null) contact.Fullname = $"{contact.Firstname} {contact.Lastname}";
+            if (request.Phone != null) contact.Phone = request.Phone;
+            if (request.Email != null) contact.Email = request.Email;
+            if (request.Address != null) contact.Address = request.Address;
+
+            var updated = await _contactService.UpdateContact(contact);
+            if (updated)
+                return Ok(contact);
+            return NotFound();
+        }
     }
 }

@@ -31,7 +31,7 @@ namespace ContactsAPI.Services
 
         public async Task<IEnumerable<Contact>> GetContactsAsync()
         {
-            return await _dataContext.Contacts.ToListAsync();
+            return await _dataContext.Contacts.Include(c => c.Skills).ToListAsync();
         }
 
         public async Task<bool> DeleteContactByIdAsync(Guid contactId)
@@ -42,6 +42,15 @@ namespace ContactsAPI.Services
             _dataContext.Contacts.Remove(contact);
             var deleted = await _dataContext.SaveChangesAsync();
             return deleted > 0;
+        }
+
+        public async Task<bool> UpdateContact(Contact contactToUpdate)
+        {
+            /*var contact = await GetContactByIdAsync(contactToUpdate.ContactID);
+            if (contact == null) return false;*/
+            _dataContext.Contacts.Update(contactToUpdate);
+            var updated = await _dataContext.SaveChangesAsync();
+            return updated > 0;
         }
     }
 }
