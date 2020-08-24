@@ -14,5 +14,7 @@ namespace ContactsAPI.Services
         Task<bool> DeleteContactByIdAsync(Guid contactId);
 
         Task<bool> UpdateContact(Contact contactToUpdate);
+        Task<bool> UserOwnsContactAsync(Guid contactId, string userId);
+        Task<IEnumerable<Contact>> GetContactsByUserAsync(string userId);
     }
 }

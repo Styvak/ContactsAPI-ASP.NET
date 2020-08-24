@@ -14,5 +14,7 @@ namespace ContactsAPI.Services
         Task<bool> DeleteSkillByIdAsync(Guid skillId);
         Task<bool> UpdateSkill(Skill skillToUpdate);
         Task<IEnumerable<Skill>> GetSkillsByContactIdAsync(Guid contactId);
+        Task<bool> UserOwnsSkillAsync(Guid skillId, string userId);
+        Task<IEnumerable<Skill>> GetSkillsByUserAsync(string userId);
     }
 }

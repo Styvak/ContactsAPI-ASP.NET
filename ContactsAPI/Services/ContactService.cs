@@ -34,6 +34,11 @@ namespace ContactsAPI.Services
             return await _dataContext.Contacts.Include(c => c.Skills).ToListAsync();
         }
 
+        public async Task<IEnumerable<Contact>> GetContactsByUserAsync(string userId)
+        {
+            return await _dataContext.Contacts.Include(c => c.Skills).Where(c => c.UserID == userId).ToListAsync();
+        }
+
         public async Task<bool> DeleteContactByIdAsync(Guid contactId)
         {
             var contact = await GetContactByIdAsync(contactId);
@@ -49,6 +54,14 @@ namespace ContactsAPI.Services
             _dataContext.Contacts.Update(contactToUpdate);
             var updated = await _dataContext.SaveChangesAsync();
             return updated > 0;
+        }
+
+        public async Task<bool> UserOwnsContactAsync(Guid contactId, string userId)
+        {
+            var contact = await _dataContext.Contacts.AsNoTracking().SingleOrDefaultAsync(x => x.ContactID == contactId);
+            if (contact == null) return false;
+            if (contact.UserID != userId) return false;
+            return true;
         }
     }
 }

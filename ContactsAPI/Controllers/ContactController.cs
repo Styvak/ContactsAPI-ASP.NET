@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ContactsAPI.Extensions;
 using ContactsAPI.Models;
 using ContactsAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,6 +27,9 @@ namespace ContactsAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
+            var userOwnsContact = await _contactService.UserOwnsContactAsync(id, HttpContext.GetUserId());
+
+            if (!userOwnsContact) return NotFound();
             var contact = await _contactService.GetContactByIdAsync(id);
             if (contact == null) return NotFound();
             return Ok(contact);
@@ -38,6 +42,7 @@ namespace ContactsAPI.Controllers
             Contact contact = new Contact { Firstname = contactRequest.Firstname, Lastname = contactRequest.Lastname, Fullname = contactRequest.Fullname, Address = contactRequest.Address, Email = contactRequest.Email, Phone = contactRequest.Phone };
             if (contact.Fullname == null) contact.Fullname = $"{contact.Firstname} {contact.Lastname}";
             contact.ContactID = Guid.NewGuid();
+            contact.UserID = HttpContext.GetUserId();
 
             bool created = await _contactService.CreateContactAsync(contact);
 
@@ -48,6 +53,9 @@ namespace ContactsAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var userOwnsContact = await _contactService.UserOwnsContactAsync(id, HttpContext.GetUserId());
+
+            if (!userOwnsContact) return NotFound();
             var deleted = await _contactService.DeleteContactByIdAsync(id);
             if (deleted) return NoContent();
             return NotFound();
@@ -56,6 +64,10 @@ namespace ContactsAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateContactRequest request)
         {
+            var userOwnsContact = await _contactService.UserOwnsContactAsync(id, HttpContext.GetUserId());
+
+            if (!userOwnsContact) return NotFound();
+
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var contact = await _contactService.GetContactByIdAsync(id);
             if (contact == null) return NotFound();

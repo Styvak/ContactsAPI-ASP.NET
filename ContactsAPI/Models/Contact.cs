@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,5 +18,7 @@ namespace ContactsAPI.Models
         [Required] [EmailAddress] public string Email { get; set; }
         [Required] [Phone] public string Phone { get; set; }
         public ICollection<Skill> Skills { get; set; }
+        [Required] public string UserID { get; set; }
+        [ForeignKey(nameof(UserID))] public IdentityUser User { get; set; }
     }
 }

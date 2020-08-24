@@ -49,11 +49,24 @@ namespace ContactsAPI.Services
             return await _dataContext.Skills.Where(s => s.ContactID == contactId).ToListAsync();
         }
 
+        public async Task<IEnumerable<Skill>> GetSkillsByUserAsync(string userId)
+        {
+            return await _dataContext.Skills.Where(s => s.UserID == userId).ToListAsync();
+        }
+
         public async Task<bool> UpdateSkill(Skill skillToUpdate)
         {
             _dataContext.Skills.Update(skillToUpdate);
             var updated = await _dataContext.SaveChangesAsync();
             return updated > 0;
+        }
+
+        public async Task<bool> UserOwnsSkillAsync(Guid skillId, string userId)
+        {
+            var skill = await _dataContext.Skills.AsNoTracking().SingleOrDefaultAsync(x => x.SkillID == skillId);
+            if (skill == null) return false;
+            if (skill.UserID != userId) return false;
+            return true;
         }
     }
 }

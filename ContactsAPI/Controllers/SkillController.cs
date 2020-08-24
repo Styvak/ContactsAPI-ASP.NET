@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ContactsAPI.Extensions;
 using ContactsAPI.Models;
 using ContactsAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,6 +31,10 @@ namespace ContactsAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(Guid id)
         {
+            var userOwnsSkill = await _skillService.UserOwnsSkillAsync(id, HttpContext.GetUserId());
+
+            if (!userOwnsSkill) return NotFound();
+
             var skill = await _skillService.GetSkillByIdAsync(id);
             if (skill == null) return NotFound();
             return Ok(skill);
@@ -41,6 +46,7 @@ namespace ContactsAPI.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             Skill skill = new Skill { Name = skillRequest.Name, Level = skillRequest.Level, ContactID = skillRequest.ContactID };
             skill.SkillID = Guid.NewGuid();
+            skill.UserID = HttpContext.GetUserId();
 
             skill.Contact = await _contactService.GetContactByIdAsync(skill.ContactID);
 
@@ -59,6 +65,10 @@ namespace ContactsAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var userOwnsSkill = await _skillService.UserOwnsSkillAsync(id, HttpContext.GetUserId());
+
+            if (!userOwnsSkill) return NotFound();
+
             var deleted = await _skillService.DeleteSkillByIdAsync(id);
             if (deleted) return NoContent();
             return NotFound();
@@ -67,6 +77,10 @@ namespace ContactsAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSkillRequest request)
         {
+            var userOwnsSkill = await _skillService.UserOwnsSkillAsync(id, HttpContext.GetUserId());
+
+            if (!userOwnsSkill) return NotFound();
+
             if (!ModelState.IsValid) return BadRequest(ModelState);
             var skill = await _skillService.GetSkillByIdAsync(id);
             if (skill == null) return NotFound();
