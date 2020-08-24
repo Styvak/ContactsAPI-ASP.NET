@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ContactsAPI.Services;
+using ContactsAPI.Options;
 
 namespace ContactsAPI
 {
@@ -34,9 +35,14 @@ namespace ContactsAPI
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddSwaggerGen(x =>
+            {
+                x.SwaggerDoc("api", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Contacts API", Version = "v1" });
+            });
+
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<ISkillService, SkillService>();
-            //services.AddRazorPages();
+            services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,8 +56,22 @@ namespace ContactsAPI
             {
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
-            //app.UseStaticFiles();
+
+            var swaggerOptions = new SwaggerOptions();
+            Configuration.GetSection(nameof(SwaggerOptions)).Bind(swaggerOptions);
+
+            app.UseSwagger(option =>
+            {
+                option.RouteTemplate = swaggerOptions.JsonRoute;
+            });
+
+            app.UseSwaggerUI(option =>
+            {
+                option.SwaggerEndpoint(swaggerOptions.UIEndpoint, swaggerOptions.Description);
+            });
+
+            //app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseRouting();
 
@@ -60,7 +80,7 @@ namespace ContactsAPI
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-                //endpoints.MapRazorPages();
+                endpoints.MapRazorPages();
             });
         }
     }
