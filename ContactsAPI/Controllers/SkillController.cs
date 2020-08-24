@@ -38,6 +38,7 @@ namespace ContactsAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] SkillRequest skillRequest)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             Skill skill = new Skill { Name = skillRequest.Name, Level = skillRequest.Level, ContactID = skillRequest.ContactID };
             skill.SkillID = Guid.NewGuid();
 
@@ -66,6 +67,7 @@ namespace ContactsAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSkillRequest request)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var skill = await _skillService.GetSkillByIdAsync(id);
             if (skill == null) return NotFound();
             if (request.ContactID != null)

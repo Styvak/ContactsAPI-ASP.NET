@@ -34,6 +34,7 @@ namespace ContactsAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ContactRequest contactRequest)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             Contact contact = new Contact { Firstname = contactRequest.Firstname, Lastname = contactRequest.Lastname, Fullname = contactRequest.Fullname, Address = contactRequest.Address, Email = contactRequest.Email, Phone = contactRequest.Phone };
             if (contact.Fullname == null) contact.Fullname = $"{contact.Firstname} {contact.Lastname}";
             contact.ContactID = Guid.NewGuid();
@@ -55,6 +56,7 @@ namespace ContactsAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateContactRequest request)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             var contact = await _contactService.GetContactByIdAsync(id);
             if (contact == null) return NotFound();
             if (request.Firstname != null) contact.Firstname = request.Firstname;

@@ -24,6 +24,14 @@ namespace ContactsAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AuthenticationResult
+                {
+                    Success = false,
+                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                });
+            }
             var authResponse = await _identityService.RegisterAsync(request.Email, request.Password);
 
             if (!authResponse.Success)
@@ -37,6 +45,14 @@ namespace ContactsAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AuthenticationResult
+                {
+                    Success = false,
+                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                });
+            }
             var authResponse = await _identityService.LoginAsync(request.Email, request.Password);
 
             if (!authResponse.Success)
