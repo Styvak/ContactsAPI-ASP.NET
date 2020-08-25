@@ -1,4 +1,5 @@
 ﻿using ContactsAPI.Data;
+using ContactsAPI.Filters;
 using ContactsAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -34,9 +35,14 @@ namespace ContactsAPI.Services
             return await _dataContext.Contacts.Include(c => c.Skills).ToListAsync();
         }
 
-        public async Task<IEnumerable<Contact>> GetContactsByUserAsync(string userId)
+        public async Task<IEnumerable<Contact>> GetContactsByUserAsync(string userId, PaginationFilter paginationFilter = null)
         {
-            return await _dataContext.Contacts.Include(c => c.Skills).Where(c => c.UserID == userId).ToListAsync();
+            if (paginationFilter == null)
+            {
+                return await _dataContext.Contacts.Include(c => c.Skills).Where(c => c.UserID == userId).ToListAsync();
+            }
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+            return await _dataContext.Contacts.Include(c => c.Skills).Where(c => c.UserID == userId).Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
         }
 
         public async Task<bool> DeleteContactByIdAsync(Guid contactId)

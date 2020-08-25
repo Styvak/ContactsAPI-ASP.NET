@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ContactsAPI.Controllers.Responses;
 using ContactsAPI.Extensions;
+using ContactsAPI.Models;
 using ContactsAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +35,7 @@ namespace ContactsAPI.Controllers
         [HttpGet("contact/{contactId}")]
         public async Task<IActionResult> GetSkillsByContact(Guid contactId)
         {
-            return Ok(await _skillService.GetSkillsByContactIdAsync(contactId));
+            return Ok(new Response<IEnumerable<Skill>>(await _skillService.GetSkillsByContactIdAsync(contactId)));
         }
     }
 }

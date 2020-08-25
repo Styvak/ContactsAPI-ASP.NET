@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using ContactsAPI.Controllers.Requests;
+using ContactsAPI.Controllers.Responses;
 using ContactsAPI.Extensions;
 using ContactsAPI.Models;
 using ContactsAPI.Services;
@@ -22,11 +23,13 @@ namespace ContactsAPI.Controllers
     {
         private readonly ISkillService _skillService;
         private readonly IContactService _contactService;
+        private readonly IUriService _uriService;
 
-        public SkillController(ISkillService skillService, IContactService contactService)
+        public SkillController(ISkillService skillService, IContactService contactService, IUriService uriService)
         {
             _skillService = skillService;
             _contactService = contactService;
+            _uriService = uriService;
         }
 
         [HttpGet("{id}")]
@@ -38,7 +41,7 @@ namespace ContactsAPI.Controllers
 
             var skill = await _skillService.GetSkillByIdAsync(id);
             if (skill == null) return NotFound();
-            return Ok(skill);
+            return Ok(new Response<Skill>(skill));
         }
 
         [HttpPost]
@@ -59,8 +62,8 @@ namespace ContactsAPI.Controllers
 
             bool created = await _skillService.CreateSkillAsync(skill);
 
-            var locationUri = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}/api/skill/{skill.SkillID}";
-            return Created(locationUri, skill);
+            var locationUri = _uriService.GetSkillUri(skill.SkillID.ToString());
+            return Created(locationUri, new Response<Skill>(skill));
         }
 
         [HttpDelete("{id}")]
@@ -100,7 +103,7 @@ namespace ContactsAPI.Controllers
 
             var updated = await _skillService.UpdateSkill(skill);
             if (updated)
-                return Ok(skill);
+                return Ok(new Response<Skill>(skill));
             return NotFound();
         }
     }

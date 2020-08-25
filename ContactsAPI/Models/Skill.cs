@@ -16,7 +16,7 @@ namespace ContactsAPI.Models
         [Required] public string Level { get; set; }
         [Required] public Guid ContactID { get; set; }
         [ForeignKey(nameof(ContactID))] [JsonIgnore] [Required] public Contact Contact { get; set; }
-        [Required] public string? UserID { get; set; }
+        [Required] public string UserID { get; set; }
         [ForeignKey(nameof(UserID))] [JsonIgnore] public IdentityUser User { get; set; }
     }
 }

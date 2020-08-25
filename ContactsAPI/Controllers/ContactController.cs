@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ContactsAPI.Controllers.Requests;
+using ContactsAPI.Controllers.Responses;
 using ContactsAPI.Extensions;
 using ContactsAPI.Models;
 using ContactsAPI.Services;
@@ -19,10 +20,12 @@ namespace ContactsAPI.Controllers
     public class ContactController : ControllerBase
     {
         private readonly IContactService _contactService;
+        private readonly IUriService _uriService;
 
-        public ContactController(IContactService contactService)
+        public ContactController(IContactService contactService, IUriService uriService)
         {
             _contactService = contactService;
+            _uriService = uriService;
         }
 
         [HttpGet("{id}")]
@@ -33,7 +36,7 @@ namespace ContactsAPI.Controllers
             if (!userOwnsContact) return NotFound();
             var contact = await _contactService.GetContactByIdAsync(id);
             if (contact == null) return NotFound();
-            return Ok(contact);
+            return Ok(new Response<Contact>(contact));
         }
 
         [HttpPost]
@@ -47,8 +50,9 @@ namespace ContactsAPI.Controllers
 
             bool created = await _contactService.CreateContactAsync(contact);
 
-            var locationUri = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}/api/contact/{contact.ContactID}";
-            return Created(locationUri, contact);
+            var locationUri = _uriService.GetContactUri(contact.ContactID.ToString());
+
+            return Created(locationUri, new Response<Contact>(contact));
         }
 
         [HttpDelete("{id}")]
@@ -82,7 +86,7 @@ namespace ContactsAPI.Controllers
 
             var updated = await _contactService.UpdateContact(contact);
             if (updated)
-                return Ok(contact);
+                return Ok(new Response<Contact>(contact));
             return NotFound();
         }
     }

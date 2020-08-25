@@ -19,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.ComponentModel;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace ContactsAPI
 {
@@ -106,6 +107,13 @@ namespace ContactsAPI
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<ISkillService, SkillService>();
             services.AddScoped<IIdentityService, IdentityService>();
+            services.AddSingleton<IUriService>(provider =>
+            {
+                var accessor = provider.GetRequiredService<IHttpContextAccessor>();
+                var request = accessor.HttpContext.Request;
+                var absoluteUri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), "/");
+                return new UriService(absoluteUri);
+            });
             services.AddRazorPages();
         }
 
