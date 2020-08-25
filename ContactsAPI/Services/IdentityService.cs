@@ -1,6 +1,9 @@
-﻿using ContactsAPI.Models;
+﻿using ContactsAPI.Data;
+using ContactsAPI.Models;
 using ContactsAPI.Options;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -16,11 +19,15 @@ namespace ContactsAPI.Services
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly JwtOptions _jwtOptions;
+        private readonly TokenValidationParameters _tokenValidationParameters;
+        private readonly ApplicationDbContext _dataContext;
 
-        public IdentityService(UserManager<IdentityUser> userManager, JwtOptions jwtOptions)
+        public IdentityService(UserManager<IdentityUser> userManager, JwtOptions jwtOptions, TokenValidationParameters tokenValidationParameters, ApplicationDbContext dataContext)
         {
             _userManager = userManager;
             _jwtOptions = jwtOptions;
+            _tokenValidationParameters = tokenValidationParameters;
+            _dataContext = dataContext;
         }
 
         public async Task<AuthenticationResult> RegisterAsync(string email, string password)
@@ -53,7 +60,7 @@ namespace ContactsAPI.Services
                 };
             }
 
-            return GenerateAuthenticationResultForUser(newUser);
+            return await GenerateAuthenticationResultForUserAsync(newUser);
         }
 
         public async Task<AuthenticationResult> LoginAsync(string email, string password)
@@ -80,10 +87,56 @@ namespace ContactsAPI.Services
                 };
             }
 
-            return GenerateAuthenticationResultForUser(user);
+            return await GenerateAuthenticationResultForUserAsync(user);
         }
 
-        private AuthenticationResult GenerateAuthenticationResultForUser(IdentityUser user)
+        private ClaimsPrincipal GetPrincipalFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, _tokenValidationParameters, out var validatedToken);
+                if (!IsJwtWithValidSecurityAlgorithm(validatedToken)) return null;
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+        {
+            return (validatedToken is JwtSecurityToken jwtSecurityToken &&
+                jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        public async Task<AuthenticationResult> RefreshTokenAsync(string token, string refreshToken)
+        {
+            var validatedToken = GetPrincipalFromToken(token);
+
+            if (validatedToken == null) return new AuthenticationResult { Errors = new[] { "Invalid Token." } };
+
+            var jti = validatedToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
+
+            var storedRefreshToken = await _dataContext.RefreshTokens.SingleOrDefaultAsync(x => x.Token == refreshToken);
+            if (storedRefreshToken == null || DateTime.UtcNow > storedRefreshToken.ExpiryDate || storedRefreshToken.Invalidated || storedRefreshToken.JwtID != jti || storedRefreshToken.Used)
+                return new AuthenticationResult
+                {
+                    Success = false,
+                    Errors = new[] { "Invalid Token." }
+                };
+
+            storedRefreshToken.Used = true;
+            _dataContext.RefreshTokens.Update(storedRefreshToken);
+            await _dataContext.SaveChangesAsync();
+
+            var user = await _userManager.FindByIdAsync(validatedToken.Claims.Single(x => x.Type == "id").Value);
+            return await GenerateAuthenticationResultForUserAsync(user);
+        }
+
+        private async Task<AuthenticationResult> GenerateAuthenticationResultForUserAsync(IdentityUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtOptions.Secret);
@@ -97,16 +150,31 @@ namespace ContactsAPI.Services
                     new Claim("id", user.Id)
                 }),
 
-                Expires = DateTime.UtcNow.AddHours(2),
+                Expires = DateTime.UtcNow.Add(_jwtOptions.TokenLifetime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
+            var refreshToken = new RefreshToken
+            {
+                JwtID = token.Id,
+                UserID = user.Id,
+                CreationDate = DateTime.UtcNow,
+                ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                Used = false,
+                Invalidated = false,
+                Token = Guid.NewGuid().ToString()
+            };
+
+            await _dataContext.RefreshTokens.AddAsync(refreshToken);
+            await _dataContext.SaveChangesAsync();
+
             return new AuthenticationResult
             {
                 Success = true,
-                Token = tokenHandler.WriteToken(token)
+                Token = tokenHandler.WriteToken(token),
+                RefreshToken = refreshToken.Token
             };
         }
     }

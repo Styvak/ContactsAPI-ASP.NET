@@ -30,6 +30,8 @@
     <Compile Remove="Data\Migrations\20200824174145_AddUserIdInContactAndSkill.Designer.cs" />
     <Compile Remove="Data\Migrations\20200824175829_SkillUserIDNullable.cs" />
     <Compile Remove="Data\Migrations\20200824175829_SkillUserIDNullable.Designer.cs" />
+    <Compile Remove="Data\Migrations\20200825080233_CreateRefreshTokens.cs" />
+    <Compile Remove="Data\Migrations\20200825080233_CreateRefreshTokens.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

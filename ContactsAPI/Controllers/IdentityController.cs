@@ -62,5 +62,26 @@ namespace ContactsAPI.Controllers
 
             return Ok(authResponse);
         }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AuthenticationResult
+                {
+                    Success = false,
+                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                });
+            }
+            var authResponse = await _identityService.RefreshTokenAsync(request.Token, request.RefreshToken);
+
+            if (!authResponse.Success)
+            {
+                return BadRequest(authResponse);
+            }
+
+            return Ok(authResponse);
+        }
     }
 }
