@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ContactsAPI.Controllers.Requests;
 using ContactsAPI.Extensions;
 using ContactsAPI.Models;
 using ContactsAPI.Services;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ContactsAPI.Models
+namespace ContactsAPI.Controllers.Responses
 {
     public class RegistrationResponse
     {
