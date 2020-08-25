@@ -20,6 +20,9 @@ using System.Text;
 using System.ComponentModel;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Http;
+using System.Reflection;
+using System.IO;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace ContactsAPI
 {
@@ -72,10 +75,8 @@ namespace ContactsAPI
             services.AddSwaggerGen(x =>
             {
                 x.SwaggerDoc("api", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Contacts API", Version = "v1" });
-                /*var security = new Dictionary<string, IEnumerable<string>>
-                {
-                    { "Bearer", new string[0] }
-                };*/
+
+                x.ExampleFilters();
 
                 var security = new OpenApiSecurityRequirement
                 {
@@ -102,7 +103,13 @@ namespace ContactsAPI
                 });
 
                 x.AddSecurityRequirement(security);
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                x.IncludeXmlComments(xmlPath);
             });
+
+            services.AddSwaggerExamplesFromAssemblyOf<Startup>();
 
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<ISkillService, SkillService>();

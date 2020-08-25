@@ -19,6 +19,7 @@ namespace ContactsAPI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class SkillController : ControllerBase
     {
         private readonly ISkillService _skillService;
@@ -32,7 +33,15 @@ namespace ContactsAPI.Controllers
             _uriService = uriService;
         }
 
+        /// <summary>
+        /// Get a specific skill
+        /// </summary>
+        /// <param name="id"></param>
+        /// <response code="200">Get a specific skill</response>
+        /// <response code="404">Skill not found</response>
+        /// <returns></returns>
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Skill), 200)]
         public async Task<IActionResult> Get(Guid id)
         {
             var userOwnsSkill = await _skillService.UserOwnsSkillAsync(id, HttpContext.GetUserId());
@@ -44,7 +53,15 @@ namespace ContactsAPI.Controllers
             return Ok(new Response<Skill>(skill));
         }
 
+        /// <summary>
+        /// Create a skill
+        /// </summary>
+        /// <param name="skillRequest"></param>
+        /// <response code="201">Skill created</response>
+        /// <response code="404">Bad request</response>
+        /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(typeof(Skill), 201)]
         public async Task<IActionResult> Create([FromBody] SkillRequest skillRequest)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -66,6 +83,13 @@ namespace ContactsAPI.Controllers
             return Created(locationUri, new Response<Skill>(skill));
         }
 
+        /// <summary>
+        /// Delete a skill
+        /// </summary>
+        /// <param name="id"></param>
+        /// <response code="204">Skill deleted</response>
+        /// <response code="404">Skill not found</response>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -78,7 +102,17 @@ namespace ContactsAPI.Controllers
             return NotFound();
         }
 
+        /// <summary>
+        /// Update a skill
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <response code="200">Skill updated</response>
+        /// <response code="404">Skill not found</response>
+        /// <response code="400">Bad request</response>
+        /// <returns></returns>
         [HttpPut("{id}")]
+        [ProducesResponseType(typeof(Skill), 200)]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateSkillRequest request)
         {
             var userOwnsSkill = await _skillService.UserOwnsSkillAsync(id, HttpContext.GetUserId());

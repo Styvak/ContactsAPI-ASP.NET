@@ -14,6 +14,7 @@ namespace ContactsAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class IdentityController : ControllerBase
     {
         private readonly IIdentityService _identityService;
@@ -23,7 +24,15 @@ namespace ContactsAPI.Controllers
             _identityService = identityService;
         }
 
+        /// <summary>
+        /// Register an account
+        /// </summary>
+        /// <param name="request"></param>
+        /// <response code="200">Account created</response>
+        /// <response code="400">Bad request</response>
+        /// <returns></returns>
         [HttpPost("register")]
+        [ProducesResponseType(typeof(AuthenticationResult), 200)]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
         {
             if (!ModelState.IsValid)
@@ -44,7 +53,15 @@ namespace ContactsAPI.Controllers
             return Ok(authResponse);
         }
 
+        /// <summary>
+        /// Log in
+        /// </summary>
+        /// <param name="request"></param>
+        /// <response code="200">User correctly logged in</response>
+        /// <response code="400">Bad request</response>
+        /// <returns></returns>
         [HttpPost("login")]
+        [ProducesResponseType(typeof(AuthenticationResult), 200)]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
             if (!ModelState.IsValid)
@@ -65,7 +82,15 @@ namespace ContactsAPI.Controllers
             return Ok(authResponse);
         }
 
+        /// <summary>
+        /// Refresh user token
+        /// </summary>
+        /// <param name="request"></param>
+        /// <response code="200">Token correctly refreshed</response>
+        /// <response code="400">Bad request</response>
+        /// <returns></returns>
         [HttpPost("refresh")]
+        [ProducesResponseType(typeof(AuthenticationResult), 200)]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
         {
             if (!ModelState.IsValid)

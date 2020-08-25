@@ -19,6 +19,7 @@ namespace ContactsAPI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class ContactsController : ControllerBase
     {
         private readonly IContactService _contactService;
@@ -30,7 +31,14 @@ namespace ContactsAPI.Controllers
             _uriService = uriService;
         }
 
+        /// <summary>
+        /// Get all the contacts of the user
+        /// </summary>
+        /// <response code="200">Returns all the contacts of the user</response>
+        /// <param name="paginationQuery"></param>
+        /// <returns></returns>
         [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<Contact>), 200)]
         public async Task<IActionResult> GetContacts([FromQuery] PaginationQuery paginationQuery)
         {
             var paginationFilter = new PaginationFilter { PageNumber = paginationQuery.PageNumber, PageSize = paginationQuery.PageSize };

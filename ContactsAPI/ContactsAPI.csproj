@@ -5,6 +5,11 @@
     <UserSecretsId>aspnet-ContactsAPI-4CB40576-1814-4B84-B135-67C985EB19C4</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Data\Migrations\20200823153424_CreateContact.cs" />
     <Compile Remove="Data\Migrations\20200823153424_CreateContact.Designer.cs" />
@@ -45,6 +50,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="5.1.2" />
   </ItemGroup>
 
 </Project>
